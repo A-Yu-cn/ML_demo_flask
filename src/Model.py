@@ -129,7 +129,7 @@ class Model:
         n_data['Age'] = pd.cut(self.data['Age'], bins=cut_age, labels=woe_age)  # Age特征
         n_data['Label'] = self.data[['Label']]  # 将标签传递
         # 特征选择
-        print(n_data.tail(10))
+        # print(n_data.tail(10))
 
         X = n_data.iloc[:, 1:]  # 特征
         y = n_data.iloc[:, 0]  # 目标变量
@@ -141,7 +141,7 @@ class Model:
         A = 600 + B * math.log(1 / 20)
         BaseScore = round(A - B * self.clf1.intercept_[0], 0)
 
-        print("评分卡的基础分为：", BaseScore)
+        # print("评分卡的基础分为：", BaseScore)
 
         # 每个特征列分值计算函数
         def score(coef, woe):
@@ -158,15 +158,15 @@ class Model:
 
         # 不同特征各个区间对应的分值
         score_ninety = score(self.clf1.coef_[0][0], woe_ninety)  # 90D特征
-        print("90D特征各个区间对应的分值为：", score_ninety)
+        # print("90D特征各个区间对应的分值为：", score_ninety)
         score_rr = score(self.clf1.coef_[0][1], woe_rr)  # RevolvingRatio特征
-        print("RevolvingRatio特征各个区间对应的分值为：", score_rr)
+        # print("RevolvingRatio特征各个区间对应的分值为：", score_rr)
         score_thirty = score(self.clf1.coef_[0][2], woe_thirty)  # 30-59D特征
-        print("30-59D特征各个区间对应的分值为：", score_thirty)
+        # print("30-59D特征各个区间对应的分值为：", score_thirty)
         score_sixty = score(self.clf1.coef_[0][3], woe_sixty)  # 60-89D特征
-        print("60-89D特征各个区间对应的分值为：", score_sixty)
+        # print("60-89D特征各个区间对应的分值为：", score_sixty)
         score_age = score(self.clf1.coef_[0][4], woe_age)  # Age特征
-        print("Age特征各个区间对应的分值为：", score_age)
+        # print("Age特征各个区间对应的分值为：", score_age)
 
         # 测试集样本转化为分值形式
         cardDf = X_test.copy()  # 不改变原测试集，在副本上操作
@@ -177,12 +177,12 @@ class Model:
         n_data['60-89D'] = n_data['60-89D'].replace(woe_sixty, score_sixty)
         n_data['Age'] = n_data['Age'].replace(woe_age, score_age)
 
-        print(n_data.head(10))  # 观察此时的测试集副本
+        # print(n_data.head(10))  # 观察此时的测试集副本
 
         # 计算每个样本的分值
         n_data['Score'] = BaseScore + n_data['90D'] + n_data['RevolvingRatio'] + \
                           n_data['30-59D'] + n_data['60-89D'] + n_data['Age']
-        print(n_data.head(10))
+        # print(n_data.head(10))
         return int(n_data.tail(1).Score)
 
     def get_data(self):
@@ -253,12 +253,12 @@ class Model:
         pred = rf.predict(rfDf_test.iloc[:, 1:]).round(0)  # 预测值四舍五入并保留一位小数点
         data.loc[(data['MonthlyIncome'].isnull()), 'MonthlyIncome'] = pred  # 填补缺失值
 
-        print("此时的MonthlyIncome特征统计指标:\n")
-        print(rfDf['MonthlyIncome'].describe())
+        # print("此时的MonthlyIncome特征统计指标:\n")
+        # print(rfDf['MonthlyIncome'].describe())
         # Dependents特征处理
         data['Dependents'].fillna(data['Dependents'].mode()[0], inplace=True)  # 这里采用众数填充
-        print("此时Dependents特征统计指标:\n")
-        print(data['Dependents'].describe())
+        # print("此时Dependents特征统计指标:\n")
+        # print(data['Dependents'].describe())
 
         # 处理百分比类异常值
         # RevolvingRatio特征
@@ -273,12 +273,12 @@ class Model:
 
         # 处理逾期特征异常值
         data.drop(data[data['30-59D'] > 80].index, inplace=True)  # 根据索引删除样本
-        print("剩下的样本数为：", data.shape[0])
+        # print("剩下的样本数为：", data.shape[0])
 
         # 处理年龄特征异常值
         data.drop(data[data['Age'] == 0].index, inplace=True)  # 根据索引删除样本
         data.drop(data[data['Age'] > 96].index, inplace=True)
-        print("剩下的样本数为：", data.shape[0])
+        # print("剩下的样本数为：", data.shape[0])
 
         # 构建新特征
         # IncAvg:家庭中每个人分摊的平均月收入
@@ -291,18 +291,18 @@ class Model:
         data[['IncAvg', 'MonthlyDept', 'DeptAvg']].head(10)  # 查看新特征
 
         rrDf, cut_rr, woe_rr, iv_rr = optimal_bins(data.Label, data.RevolvingRatio, n=10)
-        print(rrDf)
-        print(cut_rr)
+        # print(rrDf)
+        # print(cut_rr)
 
         # MonthlyIncome特征
         miDf, cut_mi, woe_mi, iv_mi = optimal_bins(data.Label, data.MonthlyIncome, n=10)
-        print("MonthlyIncome特征分箱情况：", cut_mi)
+        # print("MonthlyIncome特征分箱情况：", cut_mi)
         # Age特征
         ageDf, cut_age, woe_age, iv_age = optimal_bins(data.Label, data.Age, n=10)
-        print("Age特征分箱情况：", cut_age)
+        # print("Age特征分箱情况：", cut_age)
         # DebtRatio特征
         drDf, cut_dr, woe_dr, iv_dr = optimal_bins(data.Label, data.DebtRatio, 10)
-        print("DebtRatio特征分箱情况：", cut_dr)
+        # print("DebtRatio特征分箱情况：", cut_dr)
 
         # 自定义分箱区间如下
         # 原始特征
@@ -335,7 +335,7 @@ class Model:
 
         # 特征选择
         data = data[['Label', '90D', 'RevolvingRatio', '30-59D', '60-89D', 'Age']]
-        print(data.head(10))  # 此时的数据集
+        # print(data.head(10))  # 此时的数据集
 
         X = data.iloc[:, 1:]  # 特征
         y = data.iloc[:, 0]  # 目标变量

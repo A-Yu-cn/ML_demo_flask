@@ -13,6 +13,8 @@ if __name__ == "__main__":
     try:
         url = "http://localhost:5000/api/score"
         res = requests.post(url=url, json=post_data)
-        print(res.json())
+
+        print(type(res.json()['data']))
+        print(res.json()['data']['result'])
     except Exception as e:
         print(e)
